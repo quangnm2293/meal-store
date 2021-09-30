@@ -17,7 +17,7 @@ function StoreMeal() {
 	};
 
 	return (
-		<div className='flex justify-center flex-col space-y-3 max-w-screen-sm mx-auto min-h-screen'>
+		<div className='px-2 lg:px-0 flex justify-center flex-col space-y-3 max-w-screen-sm mx-auto min-h-screen overflow-x-auto'>
 			<button className='p-2 border border-gray-500 rounded-none self-end w-[100px]' onClick={handleAddNew}>
 				Add New
 			</button>
@@ -32,7 +32,9 @@ function StoreMeal() {
 				</thead>
 				<tbody>
 					{meals.length === 0 ? (
-						<p className='p-2'>No meal. Add new?</p>
+						<tr>
+							<td className='p-2'>No meal. Add new?</td>
+						</tr>
 					) : (
 						meals?.map((meal, i) => (
 							<tr
