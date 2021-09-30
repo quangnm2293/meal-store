@@ -50,7 +50,7 @@ function Modal() {
 	const handleAdd = async () => {
 		if (!name) return setInput(true);
 
-		const existMeal = storeMeals.some(meal => meal.name === name);
+		const existMeal = storeMeals.some(meal => meal.name.toUpperCase() === name.toUpperCase());
 		if (existMeal) return setIsExist(true);
 
 		const res = await fetch(`${API_SEARCH}${name}`);
