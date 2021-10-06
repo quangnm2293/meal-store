@@ -1,11 +1,15 @@
-import { DataProvider } from '../store/GlobalState';
 import '../styles/globals.css';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/lib/integration/react';
+import { persistor, store } from '../app/store';
 
 function MyApp({ Component, pageProps }) {
 	return (
-		<DataProvider>
-			<Component {...pageProps} />
-		</DataProvider>
+		<Provider store={store}>
+			<PersistGate loading={<p>Loading...</p>} persistor={persistor}>
+				<Component {...pageProps} />
+			</PersistGate>
+		</Provider>
 	);
 }
 

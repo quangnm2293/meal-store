@@ -1,19 +1,18 @@
-import { useContext } from 'react';
-import { DataContext } from '../store/GlobalState';
+import { useDispatch, useSelector } from 'react-redux';
+import { dispatchModal, updateMeal } from '../app/modalSlice';
 
 function StoreMeal() {
-	const { state, dispatch } = useContext(DataContext);
-
-	const { meals } = state;
+	const dispatch = useDispatch();
+	const meals = useSelector(state => state.meals);
 
 	const handleAddNew = () => {
-		dispatch({ type: 'CRUD_MEAL', payload: { type: 'Add new' } });
+		dispatch(dispatchModal({ type: 'Add new' }));
 	};
 	const handleEdit = meal => {
-		dispatch({ type: 'CRUD_MEAL', payload: { type: 'Edit meal', meal } });
+		dispatch(updateMeal(meal.name));
 	};
 	const handleDelete = meal => {
-		dispatch({ type: 'CRUD_MEAL', payload: { type: 'Delete', meal } });
+		dispatch(dispatchModal({ type: 'Delete', meal }));
 	};
 
 	return (

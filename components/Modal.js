@@ -1,19 +1,20 @@
-import { useContext, useState } from 'react';
-import { DataContext } from '../store/GlobalState';
 import { XIcon } from '@heroicons/react/outline';
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addMeal, deleteMealState, updateMeal } from '../app/mealSlice';
+import { dispatchModal } from '../app/modalSlice';
 
 function Modal() {
-	const { state, dispatch } = useContext(DataContext);
-	const {
-		modal: { type, meal },
-		meals: storeMeals,
-	} = state;
+	const dispatch = useDispatch();
+	const modal = useSelector(state => state.modals);
+	const mealsState = useSelector(state => state.meals);
+	const { type } = modal;
+	const { meal: deleteMeal } = modal;
 
 	const [name, setName] = useState('');
 	const [isFound, setIsFound] = useState(false);
 	const [isExist, setIsExist] = useState(false);
 	const [input, setInput] = useState(false);
-	const [edit, setEdit] = useState({ onEdit: false, value: 0 });
 
 	const API_SEARCH = 'https://www.themealdb.com/api/json/v1/1/search.php?s=';
 
@@ -26,7 +27,7 @@ function Modal() {
 		modalBodyEl.classList.add('animate-scaleIn');
 	}
 
-	const handleClose = () => {
+	function handleClose() {
 		const modalEl = document.getElementById('modal');
 		const modalBodyEl = document.getElementById('modalBody');
 		modalBodyEl.classList.remove('animate-scaleIn');
@@ -35,7 +36,7 @@ function Modal() {
 			modalEl.classList.remove('flex');
 			modalEl.classList.add('hidden');
 		}, 300);
-	};
+	}
 
 	if (process.browser) {
 		const El = document.getElementById('modal');
@@ -50,40 +51,37 @@ function Modal() {
 	const handleAdd = async () => {
 		if (!name) return setInput(true);
 
-		const existMeal = storeMeals.some(meal => meal.name.toUpperCase() === name.toUpperCase());
+		const existMeal = mealsState.some(meal => meal.name.toUpperCase() === name.toUpperCase());
 		if (existMeal) return setIsExist(true);
 
 		const res = await fetch(`${API_SEARCH}${name}`);
 		const { meals } = await res.json();
 
 		if (!meals) return setIsFound(true);
-		dispatch({ type: 'ADD_MEAL', payload: { name, count: meals.length } });
+		dispatch(addMeal({ name, count: meals.length }));
+		setName('');
+		dispatch(dispatchModal({}));
 		handleClose();
 	};
 
 	const handleChangeInput = e => {
-		setInput(false);
 		setIsExist(false);
 		setIsFound(false);
 		setName(e.target.value);
 	};
 
 	const handleDelete = () => {
-		const index = storeMeals.findIndex(x => x.name === meal.name);
-		const newStoreMeals = [...storeMeals];
+		const index = mealsState.findIndex(x => x.name === deleteMeal.name);
+		const newStoreMeals = [...mealsState];
 		newStoreMeals.splice(index, 1);
-		dispatch({ type: 'DELETE_MEAL', payload: newStoreMeals });
+		dispatch(deleteMealState(newStoreMeals));
+		setName('');
+		dispatch(dispatchModal({}));
 		handleClose();
 	};
 	const handleUpdate = async () => {
-		setName(meal.name);
-
-		const res = await fetch(`${API_SEARCH}${meal.name}`);
-		const { meals } = await res.json();
-
-		if (!meals) return setIsFound(true);
-		setEdit({ onEdit: true, value: meals.length });
-		dispatch({ type: 'UPDATE_MEAL', payload: { name: meal.name, count: meals.length } });
+		dispatch(updateMeal({ name: modal.name, count: modal.count }));
+		handleClose();
 	};
 
 	return (
@@ -106,23 +104,25 @@ function Modal() {
 								placeholder='Meal name'
 								className='p-1 w-full border border-gray-300 my-4'
 								onChange={handleChangeInput}
+								value={name}
+								autoFocus
 							/>
 							{isFound && <p className='text-red-500'>Meal not found</p>}
 							{isExist && <p className='text-red-500'>Meal is already exist</p>}
 							{input && <p className='text-red-500'>Please enter a name</p>}
 						</div>
 					) : type === 'Delete' ? (
-						`Are you want to delete "${meal.name}" with the count is ${meal.count}?`
+						`Are you want to delete "${deleteMeal?.name}" with the count is ${deleteMeal?.count}?`
 					) : (
 						<div>
 							<input
 								type='text'
 								placeholder='Meal name'
-								className='p-1 w-full border border-gray-300 my-4'
-								onChange={handleChangeInput}
-								value={meal && meal.name}
+								className='p-1 w-full border border-gray-300 my-4 capitalize'
+								disabled
+								value={modal.name}
 							/>
-							{edit.onEdit && <p>The count is {edit.value}.</p>}
+							<p>The count is {modal.count}.</p>
 						</div>
 					)}
 				</div>
