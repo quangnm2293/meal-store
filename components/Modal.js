@@ -36,6 +36,7 @@ function Modal() {
 			modalEl.classList.remove('flex');
 			modalEl.classList.add('hidden');
 		}, 300);
+		dispatch(dispatchModal({}));
 	}
 
 	if (process.browser) {
@@ -60,7 +61,6 @@ function Modal() {
 		if (!meals) return setIsFound(true);
 		dispatch(addMeal({ name, count: meals.length }));
 		setName('');
-		dispatch(dispatchModal({}));
 		handleClose();
 	};
 
@@ -76,7 +76,7 @@ function Modal() {
 		newStoreMeals.splice(index, 1);
 		dispatch(deleteMealState(newStoreMeals));
 		setName('');
-		dispatch(dispatchModal({}));
+
 		handleClose();
 	};
 	const handleUpdate = async () => {
