@@ -2,13 +2,13 @@ import { XIcon } from '@heroicons/react/outline';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addMeal, deleteMealState, updateMeal } from '../app/mealSlice';
-import { dispatchModal } from '../app/modalSlice';
+import { dispatchModal, loadingModal } from '../app/modalSlice';
 
 function Modal() {
 	const dispatch = useDispatch();
 	const modal = useSelector(state => state.modals);
 	const mealsState = useSelector(state => state.meals);
-	const { type } = modal;
+	const { type, loading } = modal;
 	const { meal: deleteMeal } = modal;
 
 	const [name, setName] = useState('');
@@ -55,11 +55,16 @@ function Modal() {
 		const existMeal = mealsState.some(meal => meal.name.toUpperCase() === name.toUpperCase());
 		if (existMeal) return setIsExist(true);
 
+		dispatch(loadingModal(true));
+
 		const res = await fetch(`${API_SEARCH}${name}`);
 		const { meals } = await res.json();
 
+		dispatch(loadingModal(false));
+
 		if (!meals) return setIsFound(true);
 		dispatch(addMeal({ name, count: meals.length }));
+
 		setName('');
 		handleClose();
 	};
@@ -129,12 +134,15 @@ function Modal() {
 
 				<div className='p-3 flex justify-end'>
 					{type === 'Add new' ? (
-						<button
-							className='min-w-[100px] p-1 rounded-sm text-gray-100 bg-gray-500 '
+						<div
+							className='min-w-[100px] p-1 rounded-sm text-gray-100 bg-gray-500  flex space-x-2 items-center justify-center cursor-pointer'
 							onClick={handleAdd}
 						>
-							Add
-						</button>
+							<p>Add</p>
+							{loading && (
+								<div className='w-5 h-5 rounded-full border-2 border-t-2 border-t-[#3fff] animate-spin'></div>
+							)}
+						</div>
 					) : type === 'Delete' ? (
 						<button
 							className='min-w-[100px] p-1 rounded-sm text-gray-100 bg-gray-500 '
@@ -143,12 +151,15 @@ function Modal() {
 							Delete
 						</button>
 					) : (
-						<button
-							className='min-w-[100px] p-1 rounded-sm text-gray-100 bg-gray-500 '
+						<div
+							className='min-w-[100px] p-1 rounded-sm text-gray-100 bg-gray-500 flex space-x-2 items-center justify-center cursor-pointer'
 							onClick={handleUpdate}
 						>
-							Update
-						</button>
+							<p>Update</p>
+							{loading && (
+								<div className='w-5 h-5 rounded-full border-2 border-t-2 border-t-[#3fff] animate-spin'></div>
+							)}
+						</div>
 					)}
 				</div>
 			</div>
